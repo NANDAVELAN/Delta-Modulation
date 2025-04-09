@@ -76,7 +76,7 @@ plt.show()
 ```
 
 # Output Waveform
-![image](https://github.com/user-attachments/assets/70cdb650-36b8-4ce2-a9b4-830679e32db9)
+![image](https://github.com/user-attachments/assets/53a2bbc5-1766-4d20-b442-ff6eeaabb425)
 
 # Results
 Thus,the delta modulation signal is constructed and verified using python.
