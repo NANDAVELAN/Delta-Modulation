@@ -72,7 +72,8 @@ plt.legend()
 plt.grid()
 
 plt.tight_layout()
-plt.show()```
+plt.show()
+```
 
 # Output Waveform
 ![image](https://github.com/user-attachments/assets/70cdb650-36b8-4ce2-a9b4-830679e32db9)
