@@ -5,61 +5,77 @@ To perform Delta-Modulation using python
 python 3.X
 # Program
 ```
+#DELTA MODULATION 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import butter, filtfilt
 
-# Generate a sine wave signal
-fs = 100  # Sampling frequency
-t = np.arange(0, 1, 1/fs)  # Time vector
-f = 5  # Frequency of sine wave
-x = np.sin(2 * np.pi * f * t)  # Original signal
-
-# Delta Modulation Parameters
+# Parameters
+fs = 10000  # Sampling frequency
+f = 10  # Signal frequency
+T = 1  # Duration in seconds
 delta = 0.1  # Step size
-dm = []  # Delta modulated output (1s and 0s)
-x_dm = [0]  # Step approximation
 
-# Delta Modulation (Encoding)
-for i in range(1, len(x)):
-    if x[i] > x_dm[i - 1]:  # Compare with previous value
-        dm.append(1)  # 1 for positive step
-        x_dm.append(x_dm[i - 1] + delta)
+t = np.arange(0, T, 1/fs)
+message_signal = np.sin(2 * np.pi * f * t)  # Sine wave as input signal
+
+# Delta Modulation Encoding
+encoded_signal = []
+dm_output = [0]  # Initial value of the modulated signal
+prev_sample = 0
+
+for sample in message_signal:
+    if sample > prev_sample:
+        encoded_signal.append(1)
+        dm_output.append(prev_sample + delta)
     else:
-        dm.append(0)  # 0 for negative step
-        x_dm.append(x_dm[i - 1] - delta)
+        encoded_signal.append(0)
+        dm_output.append(prev_sample - delta)
+    prev_sample = dm_output[-1]
 
-# Delta Demodulation (Decoding)
-x_rec = [0]  # Reconstructed signal
-for i in range(len(dm)):
-    if dm[i] == 1:
-        x_rec.append(x_rec[i] + delta)
+# Delta Demodulation (Reconstruction)
+demodulated_signal = [0]
+for bit in encoded_signal:
+    if bit == 1:
+        demodulated_signal.append(demodulated_signal[-1] + delta)
     else:
-        x_rec.append(x_rec[i] - delta)
+        demodulated_signal.append(demodulated_signal[-1] - delta)
 
-# Plot results
+# Convert to numpy array
+demodulated_signal = np.array(demodulated_signal)
+
+# Apply a low-pass Butterworth filter
+def low_pass_filter(signal, cutoff_freq, fs, order=4):
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff_freq / nyquist
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return filtfilt(b, a, signal)
+
+filtered_signal = low_pass_filter(demodulated_signal, cutoff_freq=20, fs=fs)
+
+# Plotting the Results
 plt.figure(figsize=(12, 6))
 
 plt.subplot(3, 1, 1)
-plt.plot(t, x, label="Original Signal", color='b')
-plt.title("Original Signal")
+plt.plot(t, message_signal, label='Original Signal', linewidth=1)
 plt.legend()
+plt.grid()
 
 plt.subplot(3, 1, 2)
-plt.step(t[:-1], x_dm[:-1], label="Delta Modulated Signal", color='r', where='post')
-plt.title("Delta Modulated Signal (Step Approximation)")
+plt.step(t, dm_output[:-1], label='Delta Modulated Signal', where='mid')
 plt.legend()
+plt.grid()
 
 plt.subplot(3, 1, 3)
-plt.plot(t, x_rec, label="Reconstructed Signal", color='g')
-plt.title("Demodulated Signal (Reconstructed)")
+plt.plot(t, filtered_signal[:-1], label='Demodulated & Filtered Signal', linestyle='dotted', linewidth=1, color='r')
 plt.legend()
+plt.grid()
 
 plt.tight_layout()
-plt.show()
-```
+plt.show()```
 
 # Output Waveform
-![image](https://github.com/user-attachments/assets/ec632a11-a1c1-4f1e-851f-e32ff79a57d7)
+![image](https://github.com/user-attachments/assets/6fb1dfd5-fcb8-43a7-9c4d-9a775834d0c7)
 
 # Results
 Thus,the delta modulation signal is constructed and verified using python.
